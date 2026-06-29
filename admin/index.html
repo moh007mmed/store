@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة التحكم | Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="admin-shell" id="adminShell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">◈</div>
+      <span>لوحة التحكم</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" onclick="showTab('dashboard',this)" href="#">
+        <span class="nav-icon">📊</span><span>الرئيسية</span>
+      </a>
+      <a class="nav-item" onclick="showTab('products',this)" href="#">
+        <span class="nav-icon">📦</span><span>المنتجات</span>
+      </a>
+      <a class="nav-item" onclick="showTab('categories',this)" href="#">
+        <span class="nav-icon">🏷️</span><span>التصنيفات</span>
+      </a>
+      <a class="nav-item" onclick="showTab('orders',this)" href="#">
+        <span class="nav-icon">🛒</span><span>الطلبات</span>
+        <span class="nav-badge" id="pendingBadge">0</span>
+      </a>
+      <a class="nav-item" onclick="showTab('customers',this)" href="#">
+        <span class="nav-icon">👥</span><span>العملاء</span>
+      </a>
+      <a class="nav-item" onclick="showTab('settings',this)" href="#">
+        <span class="nav-icon">⚙️</span><span>الإعدادات</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="../index.html" class="nav-item">
+        <span class="nav-icon">🏠</span><span>عرض المتجر</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="admin-main">
+    <header class="admin-header">
+      <button class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+      <h1 id="pageTitle">لوحة التحكم</h1>
+      <div class="admin-header-actions">
+        <span id="adminTime" class="time-display"></span>
+        <div class="admin-avatar">A</div>
+      </div>
+    </header>
+
+    <div class="admin-content">
+
+      <!-- DASHBOARD TAB -->
+      <div id="tab-dashboard" class="tab active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#6366f1">📦</div>
+            <div>
+              <span class="stat-label">إجمالي المنتجات</span>
+              <strong class="stat-value" id="st-products">0</strong>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#10b981">🛒</div>
+            <div>
+              <span class="stat-label">إجمالي الطلبات</span>
+              <strong class="stat-value" id="st-orders">0</strong>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#f59e0b">💰</div>
+            <div>
+              <span class="stat-label">إجمالي المبيعات</span>
+              <strong class="stat-value" id="st-revenue">$0</strong>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#ec4899">⏳</div>
+            <div>
+              <span class="stat-label">طلبات معلقة</span>
+              <strong class="stat-value" id="st-pending">0</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <div class="card">
+            <h3>آخر الطلبات</h3>
+            <div id="recentOrders"></div>
+          </div>
+          <div class="card">
+            <h3>أكثر المنتجات مبيعاً</h3>
+            <div id="topProducts"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRODUCTS TAB -->
+      <div id="tab-products" class="tab">
+        <div class="tab-actions">
+          <input type="text" class="search-input" placeholder="ابحث عن منتج..." oninput="filterAdminProducts(this.value)" id="prodSearch">
+          <button class="btn-primary" onclick="openProductModal()">+ إضافة منتج</button>
+        </div>
+        <div class="card">
+          <table class="data-table" id="productsTable">
+            <thead>
+              <tr><th>#</th><th>المنتج</th><th>التصنيف</th><th>النوع</th><th>السعر</th><th>المخزون</th><th>الحالة</th><th>إجراءات</th></tr>
+            </thead>
+            <tbody id="productsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CATEGORIES TAB -->
+      <div id="tab-categories" class="tab">
+        <div class="tab-actions">
+          <h2>إدارة التصنيفات</h2>
+          <button class="btn-primary" onclick="openCatModal()">+ إضافة تصنيف</button>
+        </div>
+        <div class="categories-admin-grid" id="catsAdminGrid"></div>
+      </div>
+
+      <!-- ORDERS TAB -->
+      <div id="tab-orders" class="tab">
+        <div class="tab-actions">
+          <div class="filter-row">
+            <select id="orderStatusFilter" onchange="renderOrdersTable()">
+              <option value="">كل الطلبات</option>
+              <option value="pending">معلق</option>
+              <option value="processing">قيد المعالجة</option>
+              <option value="completed">مكتمل</option>
+              <option value="cancelled">ملغي</option>
+            </select>
+            <input type="text" class="search-input" placeholder="ابحث برقم الطلب أو الاسم..." oninput="renderOrdersTable(this.value)" id="orderSearch">
+          </div>
+        </div>
+        <div class="card">
+          <table class="data-table">
+            <thead>
+              <tr><th>رقم الطلب</th><th>العميل</th><th>المنتجات</th><th>الإجمالي</th><th>طريقة الدفع</th><th>التاريخ</th><th>الحالة</th><th>إجراءات</th></tr>
+            </thead>
+            <tbody id="ordersTableBody"></tbody>
+          </table>
+          <div id="noOrders" class="empty-state">لا توجد طلبات بعد</div>
+        </div>
+      </div>
+
+      <!-- CUSTOMERS TAB -->
+      <div id="tab-customers" class="tab">
+        <div class="tab-actions"><h2>قائمة العملاء</h2></div>
+        <div class="card">
+          <table class="data-table">
+            <thead>
+              <tr><th>الاسم</th><th>البريد</th><th>الهاتف</th><th>الدولة</th><th>عدد الطلبات</th><th>الإجمالي المنفق</th></tr>
+            </thead>
+            <tbody id="customersTableBody"></tbody>
+          </table>
+          <div id="noCustomers" class="empty-state">لا يوجد عملاء بعد</div>
+        </div>
+      </div>
+
+      <!-- SETTINGS TAB -->
+      <div id="tab-settings" class="tab">
+        <div class="settings-grid">
+          <div class="card">
+            <h3>⚙️ إعدادات المتجر</h3>
+            <div class="form-group"><label>اسم المتجر (عربي)</label><input type="text" id="s-name-ar" value="متجري"></div>
+            <div class="form-group"><label>Store Name (English)</label><input type="text" id="s-name-en" value="MyStore"></div>
+            <div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="s-email" value="store@example.com"></div>
+            <div class="form-group"><label>واتساب</label><input type="text" id="s-whatsapp" value="+966500000000"></div>
+            <div class="form-group"><label>العملة</label>
+              <select id="s-currency"><option value="USD">USD - دولار أمريكي</option><option value="SAR">SAR - ريال سعودي</option><option value="AED">AED - درهم إماراتي</option></select>
+            </div>
+            <button class="btn-primary" onclick="saveSettings()">💾 حفظ الإعدادات</button>
+          </div>
+
+          <div class="card">
+            <h3>💳 إعدادات الدفع</h3>
+            <div class="form-group"><label>Stripe Public Key</label><input type="text" id="s-stripe" placeholder="pk_test_..."></div>
+            <div class="form-group"><label>PayPal Email</label><input type="email" id="s-paypal" placeholder="paypal@example.com"></div>
+            <div class="form-group"><label>Binance Pay ID</label><input type="text" id="s-binance" placeholder="معرف Binance Pay"></div>
+            <div class="form-group"><label>USDT TRC20 Address</label><input type="text" id="s-usdt" placeholder="TRC20..."></div>
+            <div class="form-group"><label>Bitcoin Address</label><input type="text" id="s-btc" placeholder="1A1z..."></div>
+            <div class="form-group"><label>Ethereum Address</label><input type="text" id="s-eth" placeholder="0x..."></div>
+            <button class="btn-primary" onclick="saveSettings()">💾 حفظ إعدادات الدفع</button>
+          </div>
+
+          <div class="card">
+            <h3>🗑️ إدارة البيانات</h3>
+            <p class="text-muted">إدارة بيانات المتجر المخزنة</p>
+            <div class="data-actions">
+              <button class="btn-ghost" onclick="exportData()">📥 تصدير البيانات (JSON)</button>
+              <button class="btn-ghost" onclick="clearOrders()">🗑️ حذف جميع الطلبات</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-header">
+      <h3 id="productModalTitle">إضافة منتج جديد</h3>
+      <button onclick="closeModal('productModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="p-id">
+      <div class="modal-grid">
+        <div class="form-group span2"><label>اسم المنتج (عربي)</label><input type="text" id="p-name-ar" placeholder="اسم المنتج بالعربية"></div>
+        <div class="form-group span2"><label>Product Name (English)</label><input type="text" id="p-name-en" placeholder="Product name in English"></div>
+        <div class="form-group span2"><label>الوصف (عربي)</label><textarea id="p-desc-ar" rows="3" placeholder="وصف المنتج بالعربية"></textarea></div>
+        <div class="form-group span2"><label>Description (English)</label><textarea id="p-desc-en" rows="3" placeholder="Product description"></textarea></div>
+        <div class="form-group"><label>السعر ($)</label><input type="number" id="p-price" placeholder="0.00" step="0.01"></div>
+        <div class="form-group"><label>السعر الأصلي ($)</label><input type="number" id="p-original" placeholder="اختياري" step="0.01"></div>
+        <div class="form-group"><label>التصنيف</label><select id="p-cat"></select></div>
+        <div class="form-group"><label>النوع</label>
+          <select id="p-type" onchange="toggleProductType()">
+            <option value="digital">رقمي (Digital)</option>
+            <option value="physical">مادي (Physical)</option>
+          </select>
+        </div>
+        <div class="form-group" id="p-stock-group"><label>المخزون</label><input type="number" id="p-stock" placeholder="الكمية المتاحة" value="999"></div>
+        <div class="form-group" id="p-shipping-group" style="display:none"><label>أيام الشحن</label><input type="number" id="p-shipping" placeholder="3" value="3"></div>
+        <div class="form-group"><label>الإيموجي</label><input type="text" id="p-emoji" placeholder="📦" maxlength="2"></div>
+        <div class="form-group"><label>التقييم</label><input type="number" id="p-rating" placeholder="4.5" step="0.1" min="1" max="5"></div>
+        <div class="form-group">
+          <label><input type="checkbox" id="p-featured"> منتج مميز (Featured)</label>
+        </div>
+        <div class="form-group">
+          <label><input type="checkbox" id="p-new"> وصل حديثاً (New)</label>
+        </div>
+        <div class="form-group span2" id="p-variants-group"><label>المقاسات/المتغيرات (مفصولة بفاصلة)</label><input type="text" id="p-variants" placeholder="S, M, L, XL"></div>
+        <div class="form-group span2" id="p-download-group"><label>رابط التحميل (للمنتجات الرقمية)</label><input type="url" id="p-download" placeholder="https://..."></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('productModal')">إلغاء</button>
+      <button class="btn-primary" onclick="saveProduct()">💾 حفظ المنتج</button>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORY MODAL -->
+<div class="modal-overlay" id="catModal">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <h3 id="catModalTitle">إضافة تصنيف جديد</h3>
+      <button onclick="closeModal('catModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="cat-id">
+      <div class="form-group"><label>اسم التصنيف (عربي)</label><input type="text" id="cat-name-ar" placeholder="مثال: إلكترونيات"></div>
+      <div class="form-group"><label>Category Name (English)</label><input type="text" id="cat-name-en" placeholder="e.g. Electronics"></div>
+      <div class="form-group"><label>الأيقونة</label><input type="text" id="cat-icon" placeholder="💻" maxlength="2"></div>
+      <div class="form-group"><label>اللون</label><input type="color" id="cat-color" value="#6366f1" style="width:100%;height:44px;border-radius:10px;border:none;cursor:pointer"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('catModal')">إلغاء</button>
+      <button class="btn-primary" onclick="saveCat()">💾 حفظ التصنيف</button>
+    </div>
+  </div>
+</div>
+
+<!-- ORDER DETAIL MODAL -->
+<div class="modal-overlay" id="orderModal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <h3>تفاصيل الطلب</h3>
+      <button onclick="closeModal('orderModal')">✕</button>
+    </div>
+    <div class="modal-body" id="orderModalContent"></div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('orderModal')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="adminToast" class="toast"></div>
+
+<script>
+// ============================================================
+// LOAD STORE DATA
+// ============================================================
+const script = document.createElement('script');
+script.src = '../js/data.js';
+document.head.appendChild(script);
+script.onload = initAdmin;
+
+function initAdmin() {
+  renderDashboard();
+  renderProductsTable();
+  renderCatsAdmin();
+  renderOrdersTable();
+  renderCustomers();
+  updateTime();
+  setInterval(updateTime, 1000);
+}
+
+function updateTime() {
+  const now = new Date();
+  document.getElementById('adminTime').textContent = now.toLocaleTimeString('ar-SA');
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  const titles = { dashboard: 'لوحة التحكم', products: 'المنتجات', categories: 'التصنيفات', orders: 'الطلبات', customers: 'العملاء', settings: 'الإعدادات' };
+  document.getElementById('pageTitle').textContent = titles[name] || name;
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard() {
+  const orders = getOrders();
+  const pending = orders.filter(o => o.status === 'pending').length;
+  const revenue = orders.reduce((s, o) => s + (o.total || 0), 0);
+
+  document.getElementById('st-products').textContent = PRODUCTS.length;
+  document.getElementById('st-orders').textContent = orders.length;
+  document.getElementById('st-revenue').textContent = '$' + revenue.toFixed(2);
+  document.getElementById('st-pending').textContent = pending;
+  document.getElementById('pendingBadge').textContent = pending;
+
+  const recentEl = document.getElementById('recentOrders');
+  if (orders.length === 0) {
+    recentEl.innerHTML = '<div class="empty-state">لا توجد طلبات</div>';
+  } else {
+    recentEl.innerHTML = `<table class="data-table"><thead><tr><th>الطلب</th><th>العميل</th><th>المبلغ</th><th>الحالة</th></tr></thead><tbody>
+    ${orders.slice(0, 8).map(o => `<tr>
+      <td><small>${o.id}</small></td>
+      <td>${o.customer?.name || '-'}</td>
+      <td>$${(o.total || 0).toFixed(2)}</td>
+      <td><span class="status-badge ${o.status}">${statusLabel(o.status)}</span></td>
+    </tr>`).join('')}
+    </tbody></table>`;
+  }
+
+  const topEl = document.getElementById('topProducts');
+  topEl.innerHTML = PRODUCTS.slice(0, 6).map(p => `
+    <div class="top-product-row">
+      <span class="tp-emoji">${p.emoji}</span>
+      <div><strong>${p.name_ar}</strong><small>$${p.price}</small></div>
+      <span class="tp-rating">★ ${p.rating}</span>
+    </div>`).join('');
+}
+
+// ============================================================
+// PRODUCTS TABLE
+// ============================================================
+function renderProductsTable(list = PRODUCTS) {
+  const body = document.getElementById('productsTableBody');
+  body.innerHTML = list.map(p => {
+    const cat = CATEGORIES.find(c => c.id === p.category_id);
+    return `<tr>
+      <td>${p.emoji}</td>
+      <td><strong>${p.name_ar}</strong><br><small>${p.name_en}</small></td>
+      <td>${cat ? cat.name_ar : '-'}</td>
+      <td><span class="type-tag ${p.type}">${p.type === 'digital' ? '⬇ رقمي' : '📦 مادي'}</span></td>
+      <td>$${p.price}${p.original_price ? `<br><small style="text-decoration:line-through;color:#64748b">$${p.original_price}</small>` : ''}</td>
+      <td>${p.stock >= 999 ? '∞' : p.stock}</td>
+      <td>
+        ${p.featured ? '<span class="badge-sm featured">مميز</span>' : ''}
+        ${p.new ? '<span class="badge-sm new">جديد</span>' : ''}
+      </td>
+      <td class="action-btns">
+        <button class="icon-btn edit" onclick="editProduct(${p.id})">✏️</button>
+        <button class="icon-btn delete" onclick="deleteProduct(${p.id})">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterAdminProducts(q) {
+  const filtered = PRODUCTS.filter(p =>
+    p.name_ar.includes(q) || p.name_en.toLowerCase().includes(q.toLowerCase())
+  );
+  renderProductsTable(filtered);
+}
+
+// ============================================================
+// PRODUCT MODAL
+// ============================================================
+function populateCatSelect() {
+  const sel = document.getElementById('p-cat');
+  sel.innerHTML = CATEGORIES.map(c => `<option value="${c.id}">${c.name_ar}</option>`).join('');
+}
+
+function openProductModal(id = null) {
+  populateCatSelect();
+  if (id) {
+    const p = PRODUCTS.find(x => x.id === id);
+    document.getElementById('productModalTitle').textContent = 'تعديل المنتج';
+    document.getElementById('p-id').value = p.id;
+    document.getElementById('p-name-ar').value = p.name_ar;
+    document.getElementById('p-name-en').value = p.name_en;
+    document.getElementById('p-desc-ar').value = p.desc_ar;
+    document.getElementById('p-desc-en').value = p.desc_en;
+    document.getElementById('p-price').value = p.price;
+    document.getElementById('p-original').value = p.original_price || '';
+    document.getElementById('p-cat').value = p.category_id;
+    document.getElementById('p-type').value = p.type;
+    document.getElementById('p-stock').value = p.stock;
+    document.getElementById('p-emoji').value = p.emoji;
+    document.getElementById('p-rating').value = p.rating;
+    document.getElementById('p-featured').checked = p.featured;
+    document.getElementById('p-new').checked = p.new;
+    document.getElementById('p-variants').value = (p.variants || []).join(', ');
+    document.getElementById('p-download').value = p.download_link || '';
+    document.getElementById('p-shipping').value = p.shipping_days || 3;
+  } else {
+    document.getElementById('productModalTitle').textContent = 'إضافة منتج جديد';
+    document.getElementById('p-id').value = '';
+    ['p-name-ar','p-name-en','p-desc-ar','p-desc-en','p-price','p-original','p-variants','p-download'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('p-emoji').value = '📦';
+    document.getElementById('p-rating').value = '4.5';
+    document.getElementById('p-stock').value = '999';
+    document.getElementById('p-featured').checked = false;
+    document.getElementById('p-new').checked = true;
+    document.getElementById('p-type').value = 'digital';
+  }
+  toggleProductType();
+  document.getElementById('productModal').classList.add('open');
+}
+
+function editProduct(id) { openProductModal(id); }
+
+function toggleProductType() {
+  const isDigital = document.getElementById('p-type').value === 'digital';
+  document.getElementById('p-download-group').style.display = isDigital ? '' : 'none';
+  document.getElementById('p-shipping-group').style.display = isDigital ? 'none' : '';
+  document.getElementById('p-variants-group').style.display = isDigital ? 'none' : '';
+}
+
+function saveProduct() {
+  const id = document.getElementById('p-id').value;
+  const product = {
+    id: id ? parseInt(id) : Date.now(),
+    name_ar: document.getElementById('p-name-ar').value.trim(),
+    name_en: document.getElementById('p-name-en').value.trim(),
+    desc_ar: document.getElementById('p-desc-ar').value.trim(),
+    desc_en: document.getElementById('p-desc-en').value.trim(),
+    price: parseFloat(document.getElementById('p-price').value) || 0,
+    original_price: parseFloat(document.getElementById('p-original').value) || null,
+    category_id: parseInt(document.getElementById('p-cat').value),
+    type: document.getElementById('p-type').value,
+    stock: parseInt(document.getElementById('p-stock').value) || 999,
+    emoji: document.getElementById('p-emoji').value || '📦',
+    rating: parseFloat(document.getElementById('p-rating').value) || 4.5,
+    reviews: 0,
+    featured: document.getElementById('p-featured').checked,
+    new: document.getElementById('p-new').checked,
+    variants: document.getElementById('p-variants').value ? document.getElementById('p-variants').value.split(',').map(v => v.trim()) : null,
+    download_link: document.getElementById('p-download').value || null,
+    shipping_days: parseInt(document.getElementById('p-shipping').value) || 3,
+    images: [],
+  };
+
+  if (!product.name_ar || !product.price) {
+    showAdminToast('⚠️ يرجى ملء الحقول المطلوبة', 'error'); return;
+  }
+
+  if (id) {
+    const idx = PRODUCTS.findIndex(p => p.id === parseInt(id));
+    if (idx !== -1) PRODUCTS[idx] = product;
+  } else {
+    PRODUCTS.unshift(product);
+  }
+
+  saveProductsToStorage();
+  renderProductsTable();
+  renderDashboard();
+  closeModal('productModal');
+  showAdminToast('✅ تم حفظ المنتج بنجاح!');
+}
+
+function deleteProduct(id) {
+  if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
+  const idx = PRODUCTS.findIndex(p => p.id === id);
+  if (idx !== -1) PRODUCTS.splice(idx, 1);
+  saveProductsToStorage();
+  renderProductsTable();
+  renderDashboard();
+  showAdminToast('🗑️ تم حذف المنتج');
+}
+
+function saveProductsToStorage() {
+  localStorage.setItem('store_products', JSON.stringify(PRODUCTS));
+}
+
+// ============================================================
+// CATEGORIES ADMIN
+// ============================================================
+function renderCatsAdmin() {
+  const el = document.getElementById('catsAdminGrid');
+  el.innerHTML = CATEGORIES.map(c => {
+    const count = PRODUCTS.filter(p => p.category_id === c.id).length;
+    return `
+    <div class="cat-admin-card" style="--cat-color:${c.color}">
+      <div class="cat-admin-top">
+        <span class="cat-emoji-big">${c.icon}</span>
+        <div class="cat-admin-actions">
+          <button class="icon-btn edit" onclick="editCat(${c.id})">✏️</button>
+          <button class="icon-btn delete" onclick="deleteCat(${c.id})">🗑️</button>
+        </div>
+      </div>
+      <h4>${c.name_ar}</h4>
+      <small>${c.name_en}</small>
+      <div class="cat-count">${count} منتج</div>
+    </div>`;
+  }).join('');
+}
+
+function openCatModal(id = null) {
+  if (id) {
+    const cat = CATEGORIES.find(c => c.id === id);
+    document.getElementById('catModalTitle').textContent = 'تعديل التصنيف';
+    document.getElementById('cat-id').value = cat.id;
+    document.getElementById('cat-name-ar').value = cat.name_ar;
+    document.getElementById('cat-name-en').value = cat.name_en;
+    document.getElementById('cat-icon').value = cat.icon;
+    document.getElementById('cat-color').value = cat.color;
+  } else {
+    document.getElementById('catModalTitle').textContent = 'إضافة تصنيف';
+    document.getElementById('cat-id').value = '';
+    document.getElementById('cat-name-ar').value = '';
+    document.getElementById('cat-name-en').value = '';
+    document.getElementById('cat-icon').value = '';
+    document.getElementById('cat-color').value = '#6366f1';
+  }
+  document.getElementById('catModal').classList.add('open');
+}
+
+function editCat(id) { openCatModal(id); }
+
+function saveCat() {
+  const id = document.getElementById('cat-id').value;
+  const cat = {
+    id: id ? parseInt(id) : Date.now(),
+    name_ar: document.getElementById('cat-name-ar').value.trim(),
+    name_en: document.getElementById('cat-name-en').value.trim(),
+    icon: document.getElementById('cat-icon').value.trim() || '📦',
+    color: document.getElementById('cat-color').value,
+  };
+  if (!cat.name_ar) { showAdminToast('⚠️ أدخل اسم التصنيف', 'error'); return; }
+  if (id) {
+    const idx = CATEGORIES.findIndex(c => c.id === parseInt(id));
+    if (idx !== -1) CATEGORIES[idx] = cat;
+  } else {
+    CATEGORIES.push(cat);
+  }
+  renderCatsAdmin();
+  closeModal('catModal');
+  showAdminToast('✅ تم حفظ التصنيف');
+}
+
+function deleteCat(id) {
+  if (!confirm('حذف هذا التصنيف؟')) return;
+  const idx = CATEGORIES.findIndex(c => c.id === id);
+  if (idx !== -1) CATEGORIES.splice(idx, 1);
+  renderCatsAdmin();
+  showAdminToast('🗑️ تم حذف التصنيف');
+}
+
+// ============================================================
+// ORDERS TABLE
+// ============================================================
+function renderOrdersTable(searchQ = '') {
+  const orders = getOrders();
+  const statusFilter = document.getElementById('orderStatusFilter')?.value;
+  const q = searchQ || document.getElementById('orderSearch')?.value || '';
+  let filtered = orders;
+  if (statusFilter) filtered = filtered.filter(o => o.status === statusFilter);
+  if (q) filtered = filtered.filter(o =>
+    o.id.includes(q) || (o.customer?.name || '').includes(q) || (o.customer?.email || '').includes(q)
+  );
+
+  const body = document.getElementById('ordersTableBody');
+  const noEl = document.getElementById('noOrders');
+  if (filtered.length === 0) {
+    body.innerHTML = '';
+    noEl?.classList.remove('hidden');
+    return;
+  }
+  noEl?.classList.add('hidden');
+  body.innerHTML = filtered.map(o => `<tr>
+    <td><small><strong>${o.id}</strong></small></td>
+    <td><strong>${o.customer?.name || '-'}</strong><br><small>${o.customer?.email || ''}</small></td>
+    <td><small>${(o.items || []).length} منتج</small></td>
+    <td><strong>$${(o.total || 0).toFixed(2)}</strong></td>
+    <td><span class="type-tag">${payLabel(o.payment_method)}</span></td>
+    <td><small>${new Date(o.date).toLocaleDateString('ar-SA')}</small></td>
+    <td>
+      <select class="status-select" onchange="updateOrderStatus('${o.id}',this.value)">
+        <option value="pending" ${o.status==='pending'?'selected':''}>⏳ معلق</option>
+        <option value="processing" ${o.status==='processing'?'selected':''}>🔄 معالجة</option>
+        <option value="completed" ${o.status==='completed'?'selected':''}>✅ مكتمل</option>
+        <option value="cancelled" ${o.status==='cancelled'?'selected':''}>❌ ملغي</option>
+      </select>
+    </td>
+    <td class="action-btns">
+      <button class="icon-btn" onclick="viewOrderDetail('${o.id}')">👁️</button>
+      <button class="icon-btn delete" onclick="deleteOrder('${o.id}')">🗑️</button>
+    </td>
+  </tr>`).join('');
+}
+
+function updateOrderStatus(orderId, status) {
+  const orders = getOrders();
+  const o = orders.find(x => x.id === orderId);
+  if (o) { o.status = status; localStorage.setItem('store_orders', JSON.stringify(orders)); }
+  renderDashboard();
+  showAdminToast('✅ تم تحديث حالة الطلب');
+}
+
+function deleteOrder(id) {
+  if (!confirm('حذف هذا الطلب؟')) return;
+  const orders = getOrders().filter(o => o.id !== id);
+  localStorage.setItem('store_orders', JSON.stringify(orders));
+  renderOrdersTable();
+  renderDashboard();
+  showAdminToast('🗑️ تم حذف الطلب');
+}
+
+function viewOrderDetail(id) {
+  const o = getOrders().find(x => x.id === id);
+  if (!o) return;
+  document.getElementById('orderModalContent').innerHTML = `
+    <div class="order-detail">
+      <div class="od-row"><strong>رقم الطلب:</strong> ${o.id}</div>
+      <div class="od-row"><strong>التاريخ:</strong> ${new Date(o.date).toLocaleString('ar-SA')}</div>
+      <div class="od-section">
+        <h4>👤 بيانات العميل</h4>
+        <div class="od-row"><strong>الاسم:</strong> ${o.customer?.name || '-'}</div>
+        <div class="od-row"><strong>البريد:</strong> ${o.customer?.email || '-'}</div>
+        <div class="od-row"><strong>الهاتف:</strong> ${o.customer?.phone || '-'}</div>
+        <div class="od-row"><strong>الدولة:</strong> ${o.customer?.country || '-'}</div>
+        ${o.customer?.address ? `<div class="od-row"><strong>العنوان:</strong> ${o.customer.address}</div>` : ''}
+      </div>
+      <div class="od-section">
+        <h4>🛒 المنتجات</h4>
+        ${(o.items || []).map(i => `<div class="od-item"><span>${i.name_ar}</span><span>${i.quantity} × $${i.price}</span><strong>$${(i.quantity * i.price).toFixed(2)}</strong></div>`).join('')}
+      </div>
+      <div class="od-section">
+        <div class="od-row"><strong>طريقة الدفع:</strong> ${payLabel(o.payment_method)}</div>
+        <div class="od-row"><strong>المجموع الفرعي:</strong> $${(o.subtotal || 0).toFixed(2)}</div>
+        <div class="od-row"><strong>الشحن:</strong> $${(o.shipping || 0).toFixed(2)}</div>
+        <div class="od-row total"><strong>الإجمالي:</strong> <strong style="color:#f59e0b">$${(o.total || 0).toFixed(2)}</strong></div>
+      </div>
+      <div class="od-section">
+        <h4>تحديث الحالة</h4>
+        <select class="status-select" onchange="updateOrderStatus('${o.id}',this.value);closeModal('orderModal')">
+          <option value="pending" ${o.status==='pending'?'selected':''}>⏳ معلق</option>
+          <option value="processing" ${o.status==='processing'?'selected':''}>🔄 قيد المعالجة</option>
+          <option value="completed" ${o.status==='completed'?'selected':''}>✅ مكتمل</option>
+          <option value="cancelled" ${o.status==='cancelled'?'selected':''}>❌ ملغي</option>
+        </select>
+      </div>
+    </div>`;
+  document.getElementById('orderModal').classList.add('open');
+}
+
+// ============================================================
+// CUSTOMERS
+// ============================================================
+function renderCustomers() {
+  const orders = getOrders();
+  const custMap = {};
+  orders.forEach(o => {
+    const email = o.customer?.email;
+    if (!email) return;
+    if (!custMap[email]) custMap[email] = { ...o.customer, orders: 0, total: 0 };
+    custMap[email].orders++;
+    custMap[email].total += o.total || 0;
+  });
+  const customers = Object.values(custMap);
+  const body = document.getElementById('customersTableBody');
+  const noEl = document.getElementById('noCustomers');
+  if (customers.length === 0) { noEl?.classList.remove('hidden'); body.innerHTML = ''; return; }
+  noEl?.classList.add('hidden');
+  body.innerHTML = customers.map(c => `<tr>
+    <td><strong>${c.name || '-'}</strong></td>
+    <td>${c.email || '-'}</td>
+    <td>${c.phone || '-'}</td>
+    <td>${c.country || '-'}</td>
+    <td>${c.orders}</td>
+    <td><strong>$${c.total.toFixed(2)}</strong></td>
+  </tr>`).join('');
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+function saveSettings() { showAdminToast('✅ تم حفظ الإعدادات'); }
+
+function exportData() {
+  const data = { products: PRODUCTS, categories: CATEGORIES, orders: getOrders() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'store-data.json';
+  a.click();
+}
+
+function clearOrders() {
+  if (!confirm('هل أنت متأكد من حذف جميع الطلبات؟')) return;
+  localStorage.setItem('store_orders', '[]');
+  renderOrdersTable();
+  renderDashboard();
+  renderCustomers();
+  showAdminToast('🗑️ تم حذف جميع الطلبات');
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function statusLabel(s) {
+  const m = { pending: '⏳ معلق', processing: '🔄 معالجة', completed: '✅ مكتمل', cancelled: '❌ ملغي' };
+  return m[s] || s;
+}
+
+function payLabel(m) {
+  const map = { stripe: '💳 Stripe', paypal: '🅿️ PayPal', binance: '🟡 Binance', crypto: '💎 Crypto' };
+  return map[m] || m || '-';
+}
+
+function showAdminToast(msg, type = 'success') {
+  const t = document.getElementById('adminToast');
+  t.textContent = msg;
+  t.className = `toast show ${type}`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
