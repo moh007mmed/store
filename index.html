@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">متجري | MyStore</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/store.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header" id="header">
+  <div class="header-inner">
+    <div class="logo" onclick="navigateTo('home')">
+      <div class="logo-icon">◈</div>
+      <span class="logo-text" data-ar="متجري" data-en="MyStore">متجري</span>
+    </div>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="#" onclick="navigateTo('home')" data-ar="الرئيسية" data-en="Home">الرئيسية</a>
+      <a href="#" onclick="navigateTo('products')" data-ar="المنتجات" data-en="Products">المنتجات</a>
+      <a href="#" onclick="navigateTo('categories')" data-ar="التصنيفات" data-en="Categories">التصنيفات</a>
+      <a href="#" onclick="navigateTo('about')" data-ar="من نحن" data-en="About">من نحن</a>
+      <a href="#" onclick="navigateTo('contact')" data-ar="تواصل معنا" data-en="Contact">تواصل معنا</a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="lang-toggle" onclick="toggleLang()" id="langBtn">EN</button>
+      <button class="search-btn" onclick="toggleSearch()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+      <button class="cart-btn" onclick="toggleCart()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="cart-badge" id="cartBadge">0</span>
+      </button>
+      <button class="menu-toggle" onclick="toggleMenu()" id="menuToggle">☰</button>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="search-bar" id="searchBar">
+    <input type="text" id="searchInput" data-ar-placeholder="ابحث عن منتج..." data-en-placeholder="Search products..." placeholder="ابحث عن منتج..." oninput="searchProducts(this.value)">
+    <button onclick="toggleSearch()">✕</button>
+  </div>
+</header>
+
+<!-- PAGES CONTAINER -->
+<main id="app">
+
+  <!-- HOME PAGE -->
+  <section id="page-home" class="page active">
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-content">
+        <span class="hero-badge" data-ar="✦ مرحباً بك" data-en="✦ Welcome">✦ مرحباً بك</span>
+        <h1 data-ar="اكتشف منتجاتنا<br>المميزة" data-en="Discover Our<br>Premium Products">اكتشف منتجاتنا<br>المميزة</h1>
+        <p data-ar="أفضل المنتجات الرقمية والمادية بأسعار تنافسية مع شحن سريع" data-en="Best digital and physical products at competitive prices with fast shipping">أفضل المنتجات الرقمية والمادية بأسعار تنافسية مع شحن سريع</p>
+        <div class="hero-btns">
+          <button class="btn-primary" onclick="navigateTo('products')" data-ar="تسوق الآن" data-en="Shop Now">تسوق الآن</button>
+          <button class="btn-ghost" onclick="navigateTo('categories')" data-ar="تصفح التصنيفات" data-en="Browse Categories">تصفح التصنيفات</button>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="floating-card card-1">
+          <span>📦</span>
+          <div>
+            <strong data-ar="شحن مجاني" data-en="Free Shipping">شحن مجاني</strong>
+            <small data-ar="على الطلبات +100$" data-en="Orders over $100">على الطلبات +100$</small>
+          </div>
+        </div>
+        <div class="floating-card card-2">
+          <span>🔒</span>
+          <div>
+            <strong data-ar="دفع آمن" data-en="Secure Payment">دفع آمن</strong>
+            <small data-ar="مشفر 100%" data-en="100% Encrypted">مشفر 100%</small>
+          </div>
+        </div>
+        <div class="hero-mockup">
+          <div class="mockup-inner">
+            <div class="mockup-dot r"></div><div class="mockup-dot y"></div><div class="mockup-dot g"></div>
+            <div class="mockup-product">
+              <div class="mp-img">🛍️</div>
+              <div class="mp-info">
+                <span data-ar="منتج مميز" data-en="Featured Item">منتج مميز</span>
+                <strong>$49.99</strong>
+                <button data-ar="أضف للسلة" data-en="Add to Cart">أضف للسلة</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stat"><strong id="stat-products">0</strong><span data-ar="منتج" data-en="Products">منتج</span></div>
+      <div class="stat"><strong id="stat-orders">0</strong><span data-ar="طلب منجز" data-en="Orders">طلب منجز</span></div>
+      <div class="stat"><strong>4.9★</strong><span data-ar="تقييم العملاء" data-en="Customer Rating">تقييم العملاء</span></div>
+      <div class="stat"><strong>24/7</strong><span data-ar="دعم فني" data-en="Support">دعم فني</span></div>
+    </div>
+
+    <!-- Categories Strip -->
+    <section class="section">
+      <div class="section-head">
+        <h2 data-ar="التصنيفات" data-en="Categories">التصنيفات</h2>
+        <a href="#" onclick="navigateTo('categories')" data-ar="عرض الكل" data-en="View All">عرض الكل</a>
+      </div>
+      <div class="categories-grid" id="homeCats"></div>
+    </section>
+
+    <!-- Featured Products -->
+    <section class="section">
+      <div class="section-head">
+        <h2 data-ar="منتجات مميزة" data-en="Featured Products">منتجات مميزة</h2>
+        <a href="#" onclick="navigateTo('products')" data-ar="عرض الكل" data-en="View All">عرض الكل</a>
+      </div>
+      <div class="products-grid" id="featuredProducts"></div>
+    </section>
+
+    <!-- New Arrivals -->
+    <section class="section">
+      <div class="section-head">
+        <h2 data-ar="وصل حديثاً" data-en="New Arrivals">وصل حديثاً</h2>
+      </div>
+      <div class="products-grid" id="newProducts"></div>
+    </section>
+
+    <!-- Payment Methods -->
+    <section class="section payment-section">
+      <h3 data-ar="طرق الدفع المقبولة" data-en="Accepted Payment Methods">طرق الدفع المقبولة</h3>
+      <div class="payment-logos">
+        <div class="pay-logo"><span>💳</span> Stripe</div>
+        <div class="pay-logo"><span>🅿️</span> PayPal</div>
+        <div class="pay-logo"><span>🟡</span> Binance Pay</div>
+        <div class="pay-logo"><span>💎</span> USDT</div>
+        <div class="pay-logo"><span>₿</span> Bitcoin</div>
+        <div class="pay-logo"><span>Ξ</span> Ethereum</div>
+      </div>
+    </section>
+
+  </section>
+
+  <!-- PRODUCTS PAGE -->
+  <section id="page-products" class="page">
+    <div class="page-header">
+      <h1 data-ar="جميع المنتجات" data-en="All Products">جميع المنتجات</h1>
+    </div>
+    <div class="products-layout">
+      <aside class="filters-panel" id="filtersPanel">
+        <h3 data-ar="التصفية" data-en="Filters">التصفية</h3>
+        <div class="filter-group">
+          <label data-ar="التصنيف" data-en="Category">التصنيف</label>
+          <select id="filterCat" onchange="applyFilters()">
+            <option value="" data-ar="الكل" data-en="All">الكل</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label data-ar="النوع" data-en="Type">النوع</label>
+          <select id="filterType" onchange="applyFilters()">
+            <option value="" data-ar="الكل" data-en="All">الكل</option>
+            <option value="digital" data-ar="رقمي" data-en="Digital">رقمي</option>
+            <option value="physical" data-ar="مادي" data-en="Physical">مادي</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label data-ar="السعر الأقصى" data-en="Max Price">السعر الأقصى: <span id="priceVal">500</span>$</label>
+          <input type="range" min="0" max="500" value="500" id="filterPrice" oninput="document.getElementById('priceVal').textContent=this.value;applyFilters()">
+        </div>
+        <div class="filter-group">
+          <label data-ar="الترتيب" data-en="Sort By">الترتيب</label>
+          <select id="filterSort" onchange="applyFilters()">
+            <option value="default" data-ar="الافتراضي" data-en="Default">الافتراضي</option>
+            <option value="price-asc" data-ar="السعر: الأقل" data-en="Price: Low">السعر: الأقل</option>
+            <option value="price-desc" data-ar="السعر: الأعلى" data-en="Price: High">السعر: الأعلى</option>
+            <option value="newest" data-ar="الأحدث" data-en="Newest">الأحدث</option>
+          </select>
+        </div>
+        <button class="btn-ghost full" onclick="clearFilters()" data-ar="مسح الفلاتر" data-en="Clear Filters">مسح الفلاتر</button>
+      </aside>
+      <div class="products-area">
+        <div class="products-toolbar">
+          <span id="productsCount" data-ar="0 منتج" data-en="0 products">0 منتج</span>
+          <div class="view-btns">
+            <button onclick="setView('grid')" class="view-btn active" id="viewGrid">⊞</button>
+            <button onclick="setView('list')" class="view-btn" id="viewList">☰</button>
+          </div>
+        </div>
+        <div class="products-grid" id="allProducts"></div>
+        <div id="noProducts" class="no-results hidden" data-ar="لا توجد منتجات" data-en="No products found">لا توجد منتجات</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATEGORIES PAGE -->
+  <section id="page-categories" class="page">
+    <div class="page-header">
+      <h1 data-ar="التصنيفات" data-en="Categories">التصنيفات</h1>
+    </div>
+    <div class="categories-full" id="categoriesFull"></div>
+  </section>
+
+  <!-- PRODUCT DETAIL PAGE -->
+  <section id="page-product-detail" class="page">
+    <div id="productDetailContent"></div>
+  </section>
+
+  <!-- CART PAGE -->
+  <section id="page-cart" class="page">
+    <div class="page-header">
+      <h1 data-ar="سلة التسوق" data-en="Shopping Cart">سلة التسوق</h1>
+    </div>
+    <div class="cart-layout">
+      <div class="cart-items" id="cartItems"></div>
+      <div class="cart-summary" id="cartSummary"></div>
+    </div>
+  </section>
+
+  <!-- CHECKOUT PAGE -->
+  <section id="page-checkout" class="page">
+    <div class="page-header">
+      <h1 data-ar="إتمام الطلب" data-en="Checkout">إتمام الطلب</h1>
+    </div>
+    <div class="checkout-layout">
+      <div class="checkout-form" id="checkoutForm"></div>
+      <div class="checkout-summary" id="checkoutSummary"></div>
+    </div>
+  </section>
+
+  <!-- ABOUT PAGE -->
+  <section id="page-about" class="page">
+    <div class="about-hero">
+      <h1 data-ar="من نحن" data-en="About Us">من نحن</h1>
+      <p data-ar="متجر إلكتروني متكامل يوفر أفضل المنتجات الرقمية والمادية" data-en="A complete e-commerce store providing the best digital and physical products">متجر إلكتروني متكامل يوفر أفضل المنتجات الرقمية والمادية</p>
+    </div>
+    <div class="about-content">
+      <div class="about-card"><div class="about-icon">🎯</div><h3 data-ar="رسالتنا" data-en="Our Mission">رسالتنا</h3><p data-ar="تقديم أفضل تجربة تسوق إلكتروني بجودة عالية وأسعار منافسة" data-en="Providing the best online shopping experience with high quality and competitive prices">تقديم أفضل تجربة تسوق إلكتروني بجودة عالية وأسعار منافسة</p></div>
+      <div class="about-card"><div class="about-icon">💡</div><h3 data-ar="رؤيتنا" data-en="Our Vision">رؤيتنا</h3><p data-ar="أن نكون المتجر الأول في المنطقة العربية للمنتجات الرقمية والمادية" data-en="To be the leading store in the Arab region for digital and physical products">أن نكون المتجر الأول في المنطقة العربية</p></div>
+      <div class="about-card"><div class="about-icon">🤝</div><h3 data-ar="قيمنا" data-en="Our Values">قيمنا</h3><p data-ar="الأمانة والجودة والخدمة المتميزة في كل خطوة" data-en="Integrity, quality, and excellent service at every step">الأمانة والجودة والخدمة المتميزة في كل خطوة</p></div>
+    </div>
+  </section>
+
+  <!-- CONTACT PAGE -->
+  <section id="page-contact" class="page">
+    <div class="page-header">
+      <h1 data-ar="تواصل معنا" data-en="Contact Us">تواصل معنا</h1>
+    </div>
+    <div class="contact-layout">
+      <div class="contact-info">
+        <div class="contact-item"><span>📧</span><div><strong data-ar="البريد الإلكتروني" data-en="Email">البريد الإلكتروني</strong><p>store@example.com</p></div></div>
+        <div class="contact-item"><span>📱</span><div><strong data-ar="واتساب" data-en="WhatsApp">واتساب</strong><p>+966 50 000 0000</p></div></div>
+        <div class="contact-item"><span>🕐</span><div><strong data-ar="أوقات العمل" data-en="Working Hours">أوقات العمل</strong><p data-ar="24/7 - طوال الأسبوع" data-en="24/7 - All Week">24/7 - طوال الأسبوع</p></div></div>
+        <div class="social-links">
+          <a href="#" class="social-btn">Twitter / X</a>
+          <a href="#" class="social-btn">Instagram</a>
+          <a href="#" class="social-btn">Telegram</a>
+        </div>
+      </div>
+      <div class="contact-form-wrap">
+        <div class="form-group"><input type="text" id="cName" data-ar-placeholder="اسمك الكريم" data-en-placeholder="Your Name" placeholder="اسمك الكريم"></div>
+        <div class="form-group"><input type="email" id="cEmail" data-ar-placeholder="بريدك الإلكتروني" data-en-placeholder="Your Email" placeholder="بريدك الإلكتروني"></div>
+        <div class="form-group"><textarea id="cMsg" rows="5" data-ar-placeholder="رسالتك..." data-en-placeholder="Your message..." placeholder="رسالتك..."></textarea></div>
+        <button class="btn-primary full" onclick="sendContact()" data-ar="إرسال الرسالة" data-en="Send Message">إرسال الرسالة</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ORDER SUCCESS PAGE -->
+  <section id="page-success" class="page">
+    <div class="success-page">
+      <div class="success-icon">✅</div>
+      <h1 data-ar="تم الطلب بنجاح!" data-en="Order Placed!">تم الطلب بنجاح!</h1>
+      <p id="successOrderId"></p>
+      <button class="btn-primary" onclick="navigateTo('home')" data-ar="العودة للرئيسية" data-en="Back to Home">العودة للرئيسية</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- CART SIDEBAR -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-sidebar-header">
+    <h3 data-ar="السلة" data-en="Cart">السلة</h3>
+    <button onclick="toggleCart()">✕</button>
+  </div>
+  <div class="cart-sidebar-items" id="cartSidebarItems"></div>
+  <div class="cart-sidebar-footer">
+    <div class="cart-total-row">
+      <span data-ar="الإجمالي" data-en="Total">الإجمالي</span>
+      <strong id="cartTotalSidebar">$0.00</strong>
+    </div>
+    <button class="btn-primary full" onclick="navigateTo('checkout');toggleCart()" data-ar="إتمام الطلب" data-en="Checkout">إتمام الطلب</button>
+    <button class="btn-ghost full" onclick="navigateTo('cart');toggleCart()" data-ar="عرض السلة" data-en="View Cart">عرض السلة</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-col">
+      <div class="logo"><div class="logo-icon">◈</div><span class="logo-text" data-ar="متجري" data-en="MyStore">متجري</span></div>
+      <p data-ar="متجر إلكتروني متكامل للمنتجات الرقمية والمادية" data-en="Complete e-commerce store for digital and physical products">متجر إلكتروني متكامل للمنتجات الرقمية والمادية</p>
+    </div>
+    <div class="footer-col">
+      <h4 data-ar="روابط سريعة" data-en="Quick Links">روابط سريعة</h4>
+      <ul>
+        <li><a href="#" onclick="navigateTo('home')" data-ar="الرئيسية" data-en="Home">الرئيسية</a></li>
+        <li><a href="#" onclick="navigateTo('products')" data-ar="المنتجات" data-en="Products">المنتجات</a></li>
+        <li><a href="#" onclick="navigateTo('categories')" data-ar="التصنيفات" data-en="Categories">التصنيفات</a></li>
+        <li><a href="#" onclick="navigateTo('about')" data-ar="من نحن" data-en="About">من نحن</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4 data-ar="الدعم" data-en="Support">الدعم</h4>
+      <ul>
+        <li><a href="#" onclick="navigateTo('contact')" data-ar="تواصل معنا" data-en="Contact">تواصل معنا</a></li>
+        <li><a href="#" data-ar="سياسة الاسترداد" data-en="Refund Policy">سياسة الاسترداد</a></li>
+        <li><a href="#" data-ar="سياسة الخصوصية" data-en="Privacy Policy">سياسة الخصوصية</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4 data-ar="طرق الدفع" data-en="Payment">طرق الدفع</h4>
+      <div class="footer-pay">
+        <span>💳 Stripe</span><span>🅿️ PayPal</span>
+        <span>🟡 Binance</span><span>💎 USDT</span>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p data-ar="© 2025 متجري. جميع الحقوق محفوظة" data-en="© 2025 MyStore. All rights reserved">© 2025 متجري. جميع الحقوق محفوظة</p>
+    <a href="admin/index.html" class="admin-link" data-ar="لوحة التحكم" data-en="Admin Panel">لوحة التحكم</a>
+  </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/store.js"></script>
+</body>
+</html>
